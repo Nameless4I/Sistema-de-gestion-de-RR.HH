@@ -13,6 +13,7 @@ class Vacacion(Base):
     dias_tomados = Column(Integer, nullable=False)
     tipo = Column(String(20), nullable=False)  
     estado = Column(String(20), default="PENDIENTE")
+    aprobado_por = Column(BigInteger, ForeignKey("usuarios.id"), nullable=True)
     observaciones = Column(Text, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
