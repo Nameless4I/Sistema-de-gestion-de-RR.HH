@@ -28,10 +28,9 @@ class CargoUpdate(BaseModel):
 class CargoResponse(BaseModel):
     id: int
     nombre: str
-    descripcion: Optional[str] = None
+    descripcion: Optional[str]
     nivel: NivelEnum
-    salario_base: Decimal
-    activo: bool
+    salario_base: Optional[Decimal]
     created_at: datetime
     
     class Config:
