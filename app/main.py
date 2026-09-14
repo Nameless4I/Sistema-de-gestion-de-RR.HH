@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-from app.routes import auth, departamentos, cargos, empleados, asistencias
+from app.routes import auth, departamentos, cargos, empleados, asistencias, vacaciones
 from app.models import usuario, empleado, departamento, cargo, asistencia, vacacion
 
 
@@ -13,6 +13,7 @@ app.include_router(departamentos.router)
 app.include_router(cargos.router)
 app.include_router(empleados.router)
 app.include_router(asistencias.router)
+app.include_router(vacaciones.router)
 
 
 @app.get("/")
