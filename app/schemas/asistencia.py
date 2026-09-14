@@ -35,9 +35,9 @@ class AsistenciaResponse(BaseModel):
     hora_salida: Optional[time]
     tipo: TipoAsistenciaEnum
     estado: EstadoAsistenciaEnum
-    horas_trabajadas: Optional[Decimal]
-    horas_extras: Optional[Decimal]
-    observaciones: Optional[str]
+    horas_trabajadas: Optional[Decimal] = None
+    horas_extras: Optional[Decimal] = None
+    observaciones: Optional[str] = None
     created_at: datetime
     
     class Config:
