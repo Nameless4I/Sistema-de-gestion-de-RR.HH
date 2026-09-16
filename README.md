@@ -86,7 +86,7 @@ pip install -r requirements.txt
 
 # 4. Configurar variables de entorno
 # Copia el archivo de ejemplo y edítalo:
-cp .env.example .env
+cp .env
 # Edita .env con tus datos de PostgreSQL y una SECRET_KEY segura
 
 # 5. Crear la base de datos en PostgreSQL
