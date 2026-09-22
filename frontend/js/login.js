@@ -4,7 +4,7 @@
 
 // Si ya está logueado, redirigir al dashboard
 if (session.isLoggedIn()) {
-  window.location.href = '/frontend/pages/dashboard.html';
+  window.location.href = 'pages/dashboard.html';
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -24,7 +24,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     session.setSession(data.access_token, data.usuario);
 
     // Redirigir al dashboard
-    window.location.href = '/frontend/pages/dashboard.html';
+    window.location.href = 'pages/dashboard.html';
 
   } catch (error) {
     showAlert('alert', error.message || 'Credenciales incorrectas');

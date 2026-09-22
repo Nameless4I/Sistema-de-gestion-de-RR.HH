@@ -38,7 +38,7 @@ async function apiFetch(endpoint, options = {}) {
 
   if (response.status === 401) {
     session.clear();
-    window.location.href = '/index.html';
+    window.location.href = '/';
     return;
   }
 
