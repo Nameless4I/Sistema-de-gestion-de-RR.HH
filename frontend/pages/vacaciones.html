@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RRHH — Vacaciones</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🏢</div>
+        <span>RRHH Sistema</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="window.location.href='dashboard.html'">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="window.location.href='empleados.html'">
+          <span class="nav-icon">👥</span> Empleados
+        </div>
+        <div class="nav-item" onclick="window.location.href='asistencias.html'">
+          <span class="nav-icon">⏰</span> Asistencias
+        </div>
+        <div class="nav-item active">
+          <span class="nav-icon">🌴</span> Vacaciones
+        </div>
+        <div class="nav-section-label" id="adminSection">Administración</div>
+        <div class="nav-item" id="navDepartamentos" onclick="window.location.href='departamentos.html'">
+          <span class="nav-icon">🏗️</span> Departamentos
+        </div>
+        <div class="nav-item" id="navCargos" onclick="window.location.href='cargos.html'">
+          <span class="nav-icon">💼</span> Cargos
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">--</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">--</div>
+            <div class="user-role" id="userRole">--</div>
+          </div>
+          <button class="btn-logout" onclick="logout()" title="Cerrar sesión">⏻</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Vacaciones</h1>
+          <p>Gestión de solicitudes de vacaciones</p>
+        </div>
+        <button class="btn btn-primary" id="btnSolicitar" style="width:auto; display:none;" onclick="abrirModalSolicitar()">
+          + Solicitar vacaciones
+        </button>
+      </div>
+
+      <!-- CARD DÍAS DISPONIBLES (solo EMPLEADO) -->
+      <div id="cardDias" style="display:none;">
+        <div style="padding: 0 32px 0;">
+          <div style="background:var(--white); border:1px solid var(--gray-border); border-radius:var(--radius); padding:20px; margin-bottom:20px; display:flex; align-items:center; gap:20px; box-shadow:var(--shadow);">
+            <div style="font-size:36px;">🌴</div>
+            <div style="flex:1;">
+              <div style="font-weight:600; font-size:15px; margin-bottom:4px;">Tus días de vacaciones</div>
+              <div style="color:var(--gray-text); font-size:13px;">Días disponibles para solicitar este año</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:36px; font-weight:700; color:var(--green);" id="diasDisponibles">—</div>
+              <div style="color:var(--gray-text); font-size:12px;">días disponibles</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-body" style="padding-top:0;">
+        <div class="table-container">
+          <div class="table-header">
+            <h2 id="totalVacaciones">Solicitudes</h2>
+            <div class="table-actions">
+              <select id="filtroEstado" style="padding:7px 12px; border:1.5px solid var(--gray-border); border-radius:6px; font-size:13px; outline:none;">
+                <option value="">Todos los estados</option>
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="APROBADO">Aprobado</option>
+                <option value="RECHAZADO">Rechazado</option>
+                <option value="CANCELADO">Cancelado</option>
+                <option value="GOZADO">Gozado</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Fecha inicio</th>
+                <th>Fecha fin</th>
+                <th>Días</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaVacaciones">
+              <tr><td colspan="7"><div class="loading"><div class="spinner"></div> Cargando...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL SOLICITAR -->
+  <div class="modal-overlay" id="modalSolicitar">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Solicitar vacaciones</h3>
+        <button class="btn-close" onclick="cerrarModalSolicitar()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="alertSolicitar" class="alert alert-error"></div>
+        <div style="background:var(--green-bg); border:1px solid #bbf7d0; border-radius:var(--radius); padding:12px 16px; margin-bottom:20px; font-size:13px; color:var(--green);">
+          Tienes <strong id="diasModal">—</strong> días disponibles
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label>Fecha inicio *</label>
+            <input type="date" id="vacFechaInicio">
+          </div>
+          <div class="form-group">
+            <label>Fecha fin *</label>
+            <input type="date" id="vacFechaFin">
+          </div>
+        </div>
+        <div id="diasCalculados" style="display:none; background:var(--gray-bg); border-radius:6px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:var(--text);">
+          📅 Esta solicitud consume <strong id="diasCount">0</strong> días
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="vacTipo">
+            <option value="ANUAL">Anual</option>
+            <option value="ANTICIPADO">Anticipado</option>
+            <option value="COMPENSADO">Compensado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="vacObservaciones" placeholder="Ej. Vacaciones de fin de año">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalSolicitar()">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="confirmarSolicitar()">Enviar solicitud</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DECISION (aprobar/rechazar) -->
+  <div class="modal-overlay" id="modalDecision">
+    <div class="modal" style="max-width:380px;">
+      <div class="modal-header">
+        <h3 id="modalDecisionTitle">Aprobar solicitud</h3>
+        <button class="btn-close" onclick="cerrarModalDecision()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="alertDecision" class="alert alert-error"></div>
+        <p style="color:var(--gray-text); font-size:13px; margin-bottom:16px;" id="modalDecisionDesc"></p>
+        <div class="form-group">
+          <label>Observaciones (opcional)</label>
+          <input type="text" id="decisionObservaciones" placeholder="Comentario...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalDecision()">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" id="btnConfirmarDecision" onclick="confirmarDecision()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/vacaciones.js"></script>
+</body>
+</html>

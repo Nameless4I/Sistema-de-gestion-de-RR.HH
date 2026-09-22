@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RRHH — Asistencias</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🏢</div>
+        <span>RRHH Sistema</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item" onclick="window.location.href='dashboard.html'">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="window.location.href='empleados.html'">
+          <span class="nav-icon">👥</span> Empleados
+        </div>
+        <div class="nav-item active">
+          <span class="nav-icon">⏰</span> Asistencias
+        </div>
+        <div class="nav-item" onclick="window.location.href='vacaciones.html'">
+          <span class="nav-icon">🌴</span> Vacaciones
+        </div>
+        <div class="nav-section-label" id="adminSection">Administración</div>
+        <div class="nav-item" id="navDepartamentos" onclick="window.location.href='departamentos.html'">
+          <span class="nav-icon">🏗️</span> Departamentos
+        </div>
+        <div class="nav-item" id="navCargos" onclick="window.location.href='cargos.html'">
+          <span class="nav-icon">💼</span> Cargos
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">--</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">--</div>
+            <div class="user-role" id="userRole">--</div>
+          </div>
+          <button class="btn-logout" onclick="logout()" title="Cerrar sesión">⏻</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Asistencias</h1>
+          <p>Control de entrada y salida del personal</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="btnEntrada" style="width:auto; display:none;" onclick="marcarEntrada()">
+            🟢 Marcar entrada
+          </button>
+          <button class="btn btn-secondary" id="btnSalida" style="width:auto; display:none;" onclick="marcarSalida()">
+            🔴 Marcar salida
+          </button>
+          <button class="btn btn-secondary" id="btnManual" style="width:auto; display:none;" onclick="abrirModalManual()">
+            + Registro manual
+          </button>
+        </div>
+      </div>
+
+      <!-- CARD DE ESTADO HOY (solo para EMPLEADO) -->
+      <div id="cardHoy" style="display:none;" class="page-body" style="padding-bottom:0;">
+        <div style="background:var(--white); border:1px solid var(--gray-border); border-radius:var(--radius); padding:20px; margin-bottom:20px; display:flex; align-items:center; gap:20px; box-shadow:var(--shadow);">
+          <div style="font-size:36px;">⏰</div>
+          <div style="flex:1;">
+            <div style="font-weight:600; font-size:15px; margin-bottom:4px;">Tu asistencia de hoy</div>
+            <div id="estadoHoy" style="color:var(--gray-text); font-size:13px;">Cargando...</div>
+          </div>
+          <div id="horasHoy" style="text-align:right;">
+            <div style="font-size:24px; font-weight:700; color:var(--blue);" id="horasTrabajadas">—</div>
+            <div style="color:var(--gray-text); font-size:12px;">horas trabajadas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-body" style="padding-top:0;">
+        <div class="table-container">
+          <div class="table-header">
+            <h2 id="totalAsistencias">Asistencias</h2>
+            <div class="table-actions">
+              <input type="date" id="filtroFecha" style="padding:7px 12px; border:1.5px solid var(--gray-border); border-radius:6px; font-size:13px; outline:none;">
+              <select id="filtroEstado" style="padding:7px 12px; border:1.5px solid var(--gray-border); border-radius:6px; font-size:13px; outline:none;">
+                <option value="">Todos los estados</option>
+                <option value="PRESENTE">Presente</option>
+                <option value="TARDANZA">Tardanza</option>
+                <option value="AUSENTE">Ausente</option>
+                <option value="JUSTIFICADO">Justificado</option>
+              </select>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Fecha</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Horas</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th id="colAcciones">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaAsistencias">
+              <tr><td colspan="8"><div class="loading"><div class="spinner"></div> Cargando...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL JUSTIFICAR -->
+  <div class="modal-overlay" id="modalJustificar">
+    <div class="modal" style="max-width:400px;">
+      <div class="modal-header">
+        <h3>Justificar asistencia</h3>
+        <button class="btn-close" onclick="cerrarModalJustificar()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="alertJustificar" class="alert alert-error"></div>
+        <div class="form-group">
+          <label>Nuevo estado</label>
+          <select id="justEstado">
+            <option value="JUSTIFICADO">Justificado</option>
+            <option value="PRESENTE">Presente</option>
+            <option value="AUSENTE">Ausente</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="justObservaciones" placeholder="Certificado médico presentado">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalJustificar()">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="confirmarJustificar()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MANUAL -->
+  <div class="modal-overlay" id="modalManual">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-header">
+        <h3>Registro manual de asistencia</h3>
+        <button class="btn-close" onclick="cerrarModalManual()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="alertManual" class="alert alert-error"></div>
+        <div class="form-group">
+          <label>Empleado ID *</label>
+          <input type="number" id="manEmpleadoId" placeholder="ID del empleado">
+        </div>
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" id="manFecha">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label>Hora entrada</label>
+            <input type="time" id="manEntrada">
+          </div>
+          <div class="form-group">
+            <label>Hora salida</label>
+            <input type="time" id="manSalida">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tipo</label>
+          <select id="manTipo">
+            <option value="PRESENCIAL">Presencial</option>
+            <option value="REMOTO">Remoto</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Observaciones</label>
+          <input type="text" id="manObservaciones" placeholder="Corrección manual: falla en marcador">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalManual()">Cancelar</button>
+        <button class="btn btn-primary" style="width:auto;" onclick="confirmarManual()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/asistencias.js"></script>
+</body>
+</html>

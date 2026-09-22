@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RRHH — Dashboard</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🏢</div>
+        <span>RRHH Sistema</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Principal</div>
+        <div class="nav-item active" onclick="window.location.href='dashboard.html'">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+
+        <div class="nav-section-label">Gestión</div>
+        <div class="nav-item" onclick="window.location.href='empleados.html'">
+          <span class="nav-icon">👥</span> Empleados
+        </div>
+        <div class="nav-item" onclick="window.location.href='asistencias.html'">
+          <span class="nav-icon">⏰</span> Asistencias
+        </div>
+        <div class="nav-item" onclick="window.location.href='vacaciones.html'">
+          <span class="nav-icon">🌴</span> Vacaciones
+        </div>
+
+        <div class="nav-section-label" id="adminSection">Administración</div>
+        <div class="nav-item" id="navDepartamentos" onclick="window.location.href='departamentos.html'">
+          <span class="nav-icon">🏗️</span> Departamentos
+        </div>
+        <div class="nav-item" id="navCargos" onclick="window.location.href='cargos.html'">
+          <span class="nav-icon">💼</span> Cargos
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">--</div>
+          <div class="user-details">
+            <div class="user-name" id="userName">Cargando...</div>
+            <div class="user-role" id="userRole">--</div>
+          </div>
+          <button class="btn-logout" onclick="logout()" title="Cerrar sesión">⏻</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p id="welcomeMsg">Bienvenido al sistema de gestión de RRHH</p>
+        </div>
+        <div style="color: var(--gray-text); font-size: 13px;" id="fechaHoy"></div>
+      </div>
+
+      <div class="page-body">
+
+        <!-- STATS -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-label">Total Empleados</div>
+            <div class="stat-value" id="statEmpleados">—</div>
+            <div class="stat-sub">Empleados activos</div>
+            <div class="stat-icon">👥</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Asistencias Hoy</div>
+            <div class="stat-value" id="statAsistencias">—</div>
+            <div class="stat-sub">Registros de hoy</div>
+            <div class="stat-icon">⏰</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Vacaciones Pendientes</div>
+            <div class="stat-value" id="statVacaciones">—</div>
+            <div class="stat-sub">Por aprobar</div>
+            <div class="stat-icon">🌴</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Departamentos</div>
+            <div class="stat-value" id="statDepartamentos">—</div>
+            <div class="stat-sub">Activos</div>
+            <div class="stat-icon">🏗️</div>
+          </div>
+        </div>
+
+        <!-- TABLAS RECIENTES -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+          <!-- Últimas asistencias -->
+          <div class="table-container">
+            <div class="table-header">
+              <h2>Asistencias recientes</h2>
+              <button class="btn btn-secondary btn-sm" onclick="window.location.href='asistencias.html'">Ver todas</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Empleado</th>
+                  <th>Entrada</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tablaAsistencias">
+                <tr><td colspan="3"><div class="loading"><div class="spinner"></div> Cargando...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Vacaciones pendientes -->
+          <div class="table-container">
+            <div class="table-header">
+              <h2>Solicitudes de vacaciones</h2>
+              <button class="btn btn-secondary btn-sm" onclick="window.location.href='vacaciones.html'">Ver todas</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Empleado ID</th>
+                  <th>Fechas</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tablaVacaciones">
+                <tr><td colspan="3"><div class="loading"><div class="spinner"></div> Cargando...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>
