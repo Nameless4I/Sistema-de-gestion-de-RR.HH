@@ -2,8 +2,7 @@
 // CONFIGURACIÓN DE LA API
 // ============================================
 
-// Cambia esta URL a la de Render cuando hagas deploy
-const API_BASE = 'https://sistema-rrhh-frontend.onrender.com/';
+const API_BASE = 'https://sistema-de-gestion-de-rr-hh.onrender.com';
 
 // ============================================
 // MANEJO DE SESIÓN
