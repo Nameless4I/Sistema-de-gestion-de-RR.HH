@@ -6,6 +6,9 @@ from app.models import usuario, empleado, departamento, cargo, asistencia, vacac
 
 Base.metadata.create_all(bind=engine)
 
+from app.seed import crear_admin_inicial
+crear_admin_inicial()
+
 app = FastAPI(title="Sistema de Gestión de RRHH")
 
 app.add_middleware(
