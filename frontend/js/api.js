@@ -3,7 +3,7 @@
 // ============================================
 
 // Cambia esta URL a la de Render cuando hagas deploy
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'https://sistema-rrhh-frontend.onrender.com/';
 
 // ============================================
 // MANEJO DE SESIÓN
