@@ -1,15 +1,45 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 from app.database import get_db
 from app.models.vacacion import Vacacion
 from app.models.empleado import Empleado
 from app.models.usuario import Usuario
+from app.models.feriado import Feriado
 from app.schemas.vacacion import VacacionCreate, VacacionDecision, VacacionResponse
 from app.auth.dependencies import get_usuario_actual, requiere_rol
 
 router = APIRouter(prefix="/api/vacaciones", tags=["Vacaciones"])
+
+
+def calcular_dias_con_feriados(fecha_inicio: date, fecha_fin: date, db: Session) -> tuple[int, list]:
+    """
+    Calcula los días de vacaciones a descontar:
+    """
+    dias_base = (fecha_fin - fecha_inicio).days + 1
+
+    feriados_en_rango = db.query(Feriado).filter(
+        Feriado.fecha >= fecha_inicio,
+        Feriado.fecha <= fecha_fin
+    ).all()
+
+    feriados_contiguos = []
+    dia_siguiente = fecha_fin + timedelta(days=1)
+
+    while True:
+        feriado_contiguo = db.query(Feriado).filter(
+            Feriado.fecha == dia_siguiente
+        ).first()
+        if feriado_contiguo:
+            feriados_contiguos.append(feriado_contiguo)
+            dia_siguiente += timedelta(days=1)
+        else:
+            break
+
+    total_dias = dias_base + len(feriados_contiguos)
+    todos_feriados = feriados_en_rango + feriados_contiguos
+    return total_dias, todos_feriados
 
 
 def _verificar_scope_jefe(usuario: Usuario, empleado: Empleado, db: Session):
@@ -29,17 +59,20 @@ def solicitar_vacacion(
 
     empleado = db.query(Empleado).filter(Empleado.id == usuario_actual.empleado_id).first()
 
-    # Calcular días tomados
-    dias_tomados = (datos.fecha_fin - datos.fecha_inicio).days + 1
+    # Calcular días con feriados contiguos
+    dias_tomados, feriados_incluidos = calcular_dias_con_feriados(
+        datos.fecha_inicio, datos.fecha_fin, db
+    )
 
     # Verificar días disponibles
     if dias_tomados > empleado.dias_vacaciones_disponibles:
-        raise HTTPException(
-            status_code=400,
-            detail=f"No tienes suficientes días disponibles. Tienes {empleado.dias_vacaciones_disponibles} días, solicitaste {dias_tomados}"
-        )
+        detalle = f"No tienes suficientes días. Tienes {empleado.dias_vacaciones_disponibles} días disponibles, esta solicitud consume {dias_tomados} días"
+        if feriados_incluidos:
+            nombres = ', '.join([f.descripcion for f in feriados_incluidos])
+            detalle += f" (incluye feriados: {nombres})"
+        raise HTTPException(status_code=400, detail=detalle)
 
-    # Verificar solapamiento con otras solicitudes PENDIENTE o APROBADO
+    # Verificar solapamiento
     solapamiento = db.query(Vacacion).filter(
         Vacacion.empleado_id == usuario_actual.empleado_id,
         Vacacion.estado.in_(["PENDIENTE", "APROBADO"]),
@@ -128,7 +161,6 @@ def aprobar_vacacion(
     if usuario_actual.rol == "JEFE":
         _verificar_scope_jefe(usuario_actual, empleado, db)
 
-    # Descontar días
     empleado.dias_vacaciones_disponibles -= vacacion.dias_tomados
 
     vacacion.estado = "APROBADO"
@@ -192,7 +224,6 @@ def cancelar_vacacion(
     if vacacion.estado == "APROBADO" and vacacion.fecha_inicio <= date.today():
         raise HTTPException(status_code=400, detail="No puedes cancelar unas vacaciones que ya comenzaron")
 
-    # Devolver días si estaba APROBADO
     if vacacion.estado == "APROBADO":
         empleado = db.query(Empleado).filter(Empleado.id == vacacion.empleado_id).first()
         empleado.dias_vacaciones_disponibles += vacacion.dias_tomados
