@@ -42,6 +42,7 @@ def listar_empleados(
         query = query.filter(Empleado.estado == estado)
 
     resultados = query.all()
+    resultados = [_enriquecer_empleado(e, db, usuario_actual) for e in resultados]
 
     if usuario_actual.rol == "CONSULTOR":
         resultados = [_ocultar_campos_consultor(e, usuario_actual) for e in resultados]
@@ -69,7 +70,7 @@ def obtener_empleado(
             raise HTTPException(status_code=403, detail="Este empleado no pertenece a tu departamento")
 
     if usuario_actual.rol == "CONSULTOR":
-        empleado = _ocultar_campos_consultor(empleado, usuario_actual)
+        empleado = _enriquecer_empleado(empleado, db, usuario_actual)
 
     return empleado
 
@@ -152,11 +153,28 @@ def cesar_empleado(
 
     empleado.estado = "CESADO"
     empleado.fecha_cese = datos.fecha_cese
+    empleado.email_corporativo = None
 
     usuario_asociado = db.query(Usuario).filter(Usuario.empleado_id == empleado_id).first()
     if usuario_asociado:
         usuario_asociado.activo = False
+        usuario_asociado.email = f"_cesado_{usuario_asociado.id}_{usuario_asociado.email}"
+        
+    
 
     db.commit()
     db.refresh(empleado)
+    return empleado
+
+def _enriquecer_empleado(empleado: Empleado, db: Session, usuario_actual: Usuario):
+    """Agrega info de usuario al empleado si el rol lo permite."""
+    if usuario_actual.rol in ["ADMIN", "RRHH"]:
+        usuario = db.query(Usuario).filter(
+            Usuario.empleado_id == empleado.id
+        ).first()
+        empleado.tiene_usuario = usuario is not None
+        empleado.email_usuario = usuario.email if usuario else None
+    else:
+        empleado.tiene_usuario = None
+        empleado.email_usuario = None
     return empleado

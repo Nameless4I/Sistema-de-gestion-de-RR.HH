@@ -95,11 +95,14 @@ function renderTabla(lista) {
       </td>
       <td>${badgeEstado(e.estado)}</td>
       <td>
-        <div style="display:flex; gap:6px;">
-          ${puedeEditar ? `
-            <button class="btn btn-secondary btn-sm" onclick="editarEmpleado(${e.id})">Editar</button>
-            ${e.estado === 'ACTIVO' ? `<button class="btn btn-danger btn-sm" onclick="abrirModalCese(${e.id})">Cesar</button>` : ''}
-          ` : ''}
+        ${puedeEditar ? `
+          <button class="btn btn-secondary btn-sm" onclick="editarEmpleado(${e.id})">Editar</button>
+          ${e.estado === 'ACTIVO' ? `<button class="btn btn-danger btn-sm" onclick="abrirModalCese(${e.id})">Cesar</button>` : ''}
+          ${e.tiene_usuario 
+            ? `<span class="badge badge-green" title="${e.email_usuario}">✓ Tiene acceso</span>`
+            : `<button class="btn btn-success btn-sm" onclick="abrirModalAcceso(${e.id}, '${e.nombre} ${e.apellido_paterno}')">🔑 Crear acceso</button>`
+          }
+        ` : ''}
         </div>
       </td>
     </tr>
@@ -256,6 +259,53 @@ async function confirmarCese() {
   }
 }
 
+
+// ============================================
+// MODAL CREAR ACCESO
+// ============================================
+
+let empleadoAccesoId = null;
+
+function abrirModalAcceso(id, nombre) {
+  empleadoAccesoId = id;
+  document.getElementById('accesoNombre').textContent = nombre;
+  document.getElementById('accesoEmail').value = '';
+  document.getElementById('accesoPassword').value = '';
+  document.getElementById('accesoRol').value = 'EMPLEADO';
+  document.getElementById('modalAcceso').classList.add('show');
+}
+
+function cerrarModalAcceso() {
+  document.getElementById('modalAcceso').classList.remove('show');
+}
+
+async function confirmarAcceso() {
+  const email = document.getElementById('accesoEmail').value.trim();
+  const password = document.getElementById('accesoPassword').value;
+  const rol = document.getElementById('accesoRol').value;
+
+  if (!email || !password) {
+    showAlert('alertAcceso', 'Email y contraseña son obligatorios');
+    return;
+  }
+
+  if (password.length < 8) {
+    showAlert('alertAcceso', 'La contraseña debe tener al menos 8 caracteres');
+    return;
+  }
+
+  try {
+    await api.post('/api/auth/register', {
+      email,
+      password,
+      empleado_id: empleadoAccesoId
+    });
+    cerrarModalAcceso();
+    showAlert('alertAccesoExito', `✓ Acceso creado para ${email}`, 'success');
+  } catch (error) {
+    showAlert('alertAcceso', error.message);
+  }
+}
 // ============================================
 // INICIALIZAR
 // ============================================

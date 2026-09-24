@@ -15,25 +15,32 @@ def register(
     db: Session = Depends(get_db),
     usuario_actual: Usuario = Depends(requiere_rol("ADMIN", "RRHH"))
 ):
-    
-    if db.query(Usuario).filter(Usuario.email == datos.email).first():
-        raise HTTPException(status_code=400, detail="El email ya está registrado")
-    
-    
+    # Verificar email duplicado (solo entre usuarios ACTIVOS)
+    usuario_existente = db.query(Usuario).filter(
+        Usuario.email == datos.email,
+        Usuario.activo == True
+    ).first()
+    if usuario_existente:
+        raise HTTPException(status_code=400, detail="El email ya está en uso por un usuario activo")
+
+    # Verificar que el empleado exista
     empleado = db.query(Empleado).filter(Empleado.id == datos.empleado_id).first()
     if not empleado:
         raise HTTPException(status_code=400, detail="El empleado indicado no existe")
-    
-    
-    if db.query(Usuario).filter(Usuario.empleado_id == datos.empleado_id).first():
-        raise HTTPException(status_code=400, detail="Este empleado ya tiene una cuenta de usuario") 
-    
-    
+
+    # Verificar que el empleado no tenga ya un usuario ACTIVO
+    usuario_emp_activo = db.query(Usuario).filter(
+        Usuario.empleado_id == datos.empleado_id,
+        Usuario.activo == True
+    ).first()
+    if usuario_emp_activo:
+        raise HTTPException(status_code=400, detail="Este empleado ya tiene una cuenta de usuario activa")
+
     nuevo_usuario = Usuario(
         email=datos.email,
         password_hash=hash_password(datos.password),
         empleado_id=datos.empleado_id,
-        rol="EMPLEADO",
+        rol=datos.rol,
         activo=True
     )
     db.add(nuevo_usuario)

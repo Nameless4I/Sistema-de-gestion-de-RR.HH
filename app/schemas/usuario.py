@@ -14,11 +14,21 @@ class UsuarioCreate(BaseModel):
     email: EmailStr
     password: str
     empleado_id: int
-    
+    rol: str = "EMPLEADO"  # opcional, por defecto EMPLEADO
+
     @field_validator("password")
+    @classmethod
     def password_minima(cls, v):
         if len(v) < 8:
             raise ValueError("La contraseña debe tener al menos 8 caracteres")
+        return v
+
+    @field_validator("rol")
+    @classmethod
+    def rol_valido(cls, v):
+        roles_permitidos = ["ADMIN", "RRHH", "JEFE", "EMPLEADO", "CONSULTOR"]
+        if v not in roles_permitidos:
+            raise ValueError(f"Rol inválido. Debe ser uno de: {roles_permitidos}")
         return v
     
 class UsuarioLogin(BaseModel):

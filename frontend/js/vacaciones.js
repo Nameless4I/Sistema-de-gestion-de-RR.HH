@@ -120,30 +120,84 @@ function cerrarModalSolicitar() {
 
 // Calcular días al cambiar fechas
 ['vacFechaInicio', 'vacFechaFin'].forEach(id => {
-  document.getElementById(id).addEventListener('change', calcularDias);
+  document.getElementById(id).addEventListener('change', () => calcularDias());
 });
 
-function calcularDias() {
+async function calcularDias() {
   const inicio = document.getElementById('vacFechaInicio').value;
   const fin = document.getElementById('vacFechaFin').value;
 
-  if (inicio && fin && fin >= inicio) {
-    const dias = Math.floor((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1;
-    document.getElementById('diasCount').textContent = dias;
-    document.getElementById('diasCalculados').style.display = 'block';
+  if (!inicio || !fin || fin < inicio) {
+    document.getElementById('diasCalculados').style.display = 'none';
+    return;
+  }
 
-    // Advertencia si supera los días disponibles
+  // Calcular días base
+  const dias = Math.floor((new Date(fin) - new Date(inicio)) / (1000 * 60 * 60 * 24)) + 1;
+
+  // Buscar feriados en el rango y contiguos
+  try {
+    const feriados = await api.get('/api/feriados');
+    const fechaInicio = new Date(inicio);
+    const fechaFin = new Date(fin);
+
+    // Feriados dentro del rango
+    const feriadosEnRango = feriados.filter(f => {
+      const fecha = new Date(f.fecha);
+      return fecha >= fechaInicio && fecha <= fechaFin;
+    });
+
+    // Feriados contiguos después del fin
+    const feriadosContiguos = [];
+    let diaSiguiente = new Date(fechaFin);
+    diaSiguiente.setDate(diaSiguiente.getDate() + 1);
+
+    while (true) {
+      const fechaStr = diaSiguiente.toISOString().split('T')[0];
+      const feriado = feriados.find(f => f.fecha === fechaStr);
+      if (feriado) {
+        feriadosContiguos.push(feriado);
+        diaSiguiente.setDate(diaSiguiente.getDate() + 1);
+      } else {
+        break;
+      }
+    }
+
+    const totalDias = dias + feriadosContiguos.length;
+    const todosFeriados = [...feriadosEnRango, ...feriadosContiguos];
+
+    // Mostrar resultado
     const container = document.getElementById('diasCalculados');
-    if (dias > diasDisponibles) {
-      container.style.background = 'var(--red-bg)';
-      container.style.color = 'var(--red)';
-      document.getElementById('diasCount').textContent = `${dias} ⚠️ supera tus días disponibles`;
+    container.style.display = 'block';
+
+    if (todosFeriados.length > 0) {
+      const nombresFeriados = todosFeriados.map(f => f.descripcion).join(', ');
+      container.style.background = '#fff9db';
+      container.style.color = '#f08c00';
+      container.style.border = '1px solid #ffe066';
+      container.innerHTML = `
+        ⚠️ Esta solicitud consume <strong>${totalDias} días</strong>
+        <div style="font-size:12px; margin-top:4px;">Incluye feriados: ${nombresFeriados}</div>
+      `;
     } else {
       container.style.background = 'var(--gray-bg)';
       container.style.color = 'var(--text)';
+      container.style.border = 'none';
+      container.innerHTML = `📅 Esta solicitud consume <strong>${totalDias} días</strong>`;
     }
-  } else {
-    document.getElementById('diasCalculados').style.display = 'none';
+
+    // Advertencia si supera días disponibles
+    if (totalDias > diasDisponibles) {
+      container.style.background = 'var(--red-bg)';
+      container.style.color = 'var(--red)';
+      container.style.border = '1px solid #fecaca';
+      container.innerHTML += ` <span>⚠️ supera tus ${diasDisponibles} días disponibles</span>`;
+    }
+
+  } catch (error) {
+    // Si falla, mostrar cálculo básico sin feriados
+    document.getElementById('diasCount').textContent = dias;
+    document.getElementById('diasCalculados').style.display = 'block';
   }
 }
 
