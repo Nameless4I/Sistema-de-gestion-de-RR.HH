@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -13,7 +14,7 @@ try:
         conn.execute(text("ALTER TABLE usuarios ALTER COLUMN empleado_id DROP NOT NULL"))
         conn.commit()
 except Exception:
-    pass  # Si ya está corregida, ignorar el error
+    pass
 
 app = FastAPI(title="Sistema de Gestión de RRHH")
 
@@ -37,12 +38,12 @@ app.include_router(asistencias.router)
 app.include_router(vacaciones.router)
 app.include_router(feriados.router)
 
-# Crear admin inicial automáticamente
-from app.seed import crear_admin_inicial
-crear_admin_inicial()
-
-from app.seed_feriados import crear_feriados_2026
-crear_feriados_2026()
+# Solo correr seeds en producción, no durante tests
+if os.getenv("TESTING") != "true":
+    from app.seed import crear_admin_inicial
+    from app.seed_feriados import crear_feriados_2026
+    crear_admin_inicial()
+    crear_feriados_2026()
 
 @app.get("/")
 def root():
