@@ -103,8 +103,8 @@ class EmpleadoResponse(BaseModel):
     salario: Optional[Decimal] = None
     dias_vacaciones_disponibles: int
     estado: EstadoEmpleadoEnum
-    tiene_usuario: Optional[bool] = False  # ← agregar esto
-    email_usuario: Optional[str] = None    # ← y esto
+    tiene_usuario: Optional[bool] = None
+    email_usuario: Optional[str] = None    
     created_at: datetime
     
     class Config:

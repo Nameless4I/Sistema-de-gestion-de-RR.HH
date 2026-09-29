@@ -21,6 +21,17 @@ def _ocultar_campos_consultor(empleado: Empleado, usuario: Usuario) -> Empleado:
     return empleado
 
 
+def _enriquecer_empleado(empleado: Empleado, db: Session, usuario_actual: Usuario) -> Empleado:
+    """Agrega info de acceso al empleado si el rol lo permite."""
+    if usuario_actual.rol in ["ADMIN", "RRHH"]:
+        usuario = db.query(Usuario).filter(
+            Usuario.empleado_id == empleado.id,
+            Usuario.activo == True
+        ).first()
+        empleado.tiene_usuario = usuario is not None
+        empleado.email_usuario = usuario.email if usuario else None
+    return empleado
+
 @router.get("", response_model=list[EmpleadoResponse])
 def listar_empleados(
     departamento_id: Optional[int] = Query(None),

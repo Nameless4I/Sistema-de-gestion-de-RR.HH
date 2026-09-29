@@ -98,8 +98,8 @@ function renderTabla(lista) {
         ${puedeEditar ? `
           <button class="btn btn-secondary btn-sm" onclick="editarEmpleado(${e.id})">Editar</button>
           ${e.estado === 'ACTIVO' ? `<button class="btn btn-danger btn-sm" onclick="abrirModalCese(${e.id})">Cesar</button>` : ''}
-          ${e.tiene_usuario 
-            ? `<span class="badge badge-green" title="${e.email_usuario}">✓ Tiene acceso</span>`
+          ${e.tiene_usuario === true
+            ? `<span class="badge badge-green" title="${e.email_usuario || ''}">✓ Tiene acceso</span>`
             : `<button class="btn btn-success btn-sm" onclick="abrirModalAcceso(${e.id}, '${e.nombre} ${e.apellido_paterno}')">🔑 Crear acceso</button>`
           }
         ` : ''}
