@@ -124,8 +124,11 @@
       </div>
       <div class="modal-body">
         <div id="alertSolicitar" class="alert alert-error"></div>
-        <div style="background:var(--green-bg); border:1px solid #bbf7d0; border-radius:var(--radius); padding:12px 16px; margin-bottom:20px; font-size:13px; color:var(--green);">
-          Tienes <strong id="diasModal">—</strong> días disponibles
+        <div style="background:var(--green-bg); border:1px solid #bbf7d0; border-radius:var(--radius); padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between;">
+          <span style="font-size:13px; color:var(--green);">Tienes <strong id="diasModal">—</strong> días disponibles</span>
+          <button class="btn btn-secondary btn-sm" onclick="abrirModalFeriados()" type="button">
+            📅 Ver feriados
+          </button>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
           <div class="form-group">
@@ -184,5 +187,23 @@
 
   <script src="../js/api.js"></script>
   <script src="../js/vacaciones.js"></script>
+
+<!-- MODAL FERIADOS -->
+<div class="modal-overlay" id="modalFeriados">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h3>📅 Feriados nacionales 2026</h3>
+      <button class="btn-close" onclick="cerrarModalFeriados()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0;">
+      <div id="listaFeriados">
+        <div class="loading"><div class="spinner"></div> Cargando...</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="width:auto;" onclick="cerrarModalFeriados()">Cerrar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

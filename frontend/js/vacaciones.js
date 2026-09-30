@@ -283,6 +283,79 @@ async function cancelarVacacion(id) {
     alert(error.message);
   }
 }
+// ============================================
+// MODAL FERIADOS
+// ============================================
+
+let feriadosCargados = null;
+
+async function abrirModalFeriados() {
+  document.getElementById('modalFeriados').classList.add('show');
+
+  // Solo cargar una vez
+  if (feriadosCargados) {
+    renderFeriados(feriadosCargados);
+    return;
+  }
+
+  try {
+    feriadosCargados = await api.get('/api/feriados');
+    renderFeriados(feriadosCargados);
+  } catch (error) {
+    document.getElementById('listaFeriados').innerHTML =
+      '<p style="padding:20px; color:var(--gray-text);">Error cargando feriados</p>';
+  }
+}
+
+function cerrarModalFeriados() {
+  document.getElementById('modalFeriados').classList.remove('show');
+}
+
+function renderFeriados(feriados) {
+  // Agrupar por mes
+  const meses = {
+    1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril',
+    5: 'Mayo', 6: 'Junio', 7: 'Julio', 8: 'Agosto',
+    9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
+  };
+
+  const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+  // Agrupar feriados por mes
+  const porMes = {};
+  feriados.forEach(f => {
+    const fecha = new Date(f.fecha + 'T00:00:00');
+    const mes = fecha.getMonth() + 1;
+    if (!porMes[mes]) porMes[mes] = [];
+    porMes[mes].push({ ...f, fechaObj: fecha });
+  });
+
+  let html = '';
+  Object.keys(porMes).sort((a, b) => a - b).forEach(mes => {
+    html += `
+      <div style="padding:12px 24px; border-bottom:1px solid var(--gray-border);">
+        <div style="font-size:11px; font-weight:600; color:var(--gray-text); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">
+          ${meses[mes]}
+        </div>
+        ${porMes[mes].map(f => `
+          <div style="display:flex; align-items:center; gap:12px; padding:6px 0;">
+            <div style="width:40px; height:40px; background:var(--red-bg); border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0;">
+              <div style="font-size:16px; font-weight:700; color:var(--red); line-height:1;">
+                ${f.fechaObj.getDate()}
+              </div>
+              <div style="font-size:9px; color:var(--red); font-weight:500;">
+                ${dias[f.fechaObj.getDay()]}
+              </div>
+            </div>
+            <div style="font-size:13px; color:var(--text);">${f.descripcion}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  });
+
+  document.getElementById('listaFeriados').innerHTML = html;
+}
 
 // ============================================
 // INICIALIZAR
