@@ -10,7 +10,7 @@
 Sistema web completo de gestión de Recursos Humanos con API REST, autenticación JWT y control de acceso por roles. Desarrollado con Python (FastAPI) + JavaScript + PostgreSQL.
 
 > **Title:** Human Resources Management System
-> **VIDEO EXPLAIN:** **https://drive.google.com/file/d/1CBx3oUphymOFs91W02vDDMYUvH7XfZGu/view?usp=sharing
+> **VIDEO EXPLAIN:** [https://youtu.be/u35HleaY5F0](https://www.youtube.com/watch?v=u35HleaY5F0)
 
 
 > 🔗 **Demo en vivo (30days, start 10.31.2026):** https://sistema-rrhh-frontend.onrender.com
