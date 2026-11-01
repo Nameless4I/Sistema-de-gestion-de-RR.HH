@@ -9,9 +9,13 @@
 
 Sistema web completo de gestión de Recursos Humanos con API REST, autenticación JWT y control de acceso por roles. Desarrollado con Python (FastAPI) + JavaScript + PostgreSQL.
 
-> 🔗 **Demo en vivo:** https://sistema-rrhh-frontend.onrender.com
+> **Title:** Human Resources Management System
+> **VIDEO EXPLAIN:** **https://drive.google.com/file/d/1CBx3oUphymOFs91W02vDDMYUvH7XfZGu/view?usp=sharing
+
+
+> 🔗 **Demo en vivo (30days, start 10.31.2026):** https://sistema-rrhh-frontend.onrender.com
 > 📄 **Documentación de la API:** https://sistema-de-gestion-de-rr-hh.onrender.com/docs
-> 👤 **Usuario demo:** admin@empresa.com / Admin12345
+> 👤 **Usuario demo:** admin@empresa.com / admin
 
 > ⚠️ El backend usa el plan gratuito de Render — puede tardar 30-60 segundos en responder la primera vez (cold start). Después funciona con normalidad.
 
@@ -286,3 +290,9 @@ El sistema incluye los 17 feriados nacionales del Perú 2026 y aplica la siguien
 
 
 [![GitHub](https://img.shields.io/badge/GitHub-Nameless4I-181717?logo=github)](https://github.com/Nameless4I)
+
+
+**IA USED**
+
+https://claude.ai/new (for frontend, and some codes)
+https://chat.deepseek.com/ (for frontend)
